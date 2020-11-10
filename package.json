@@ -1,0 +1,24 @@
+{
+  "name": "prostocraftbot",
+  "version": "1.0.0",
+  "description": "The bot for ProstoCraft for mine",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nodejs",
+    "minecraft",
+    "prostocraft"
+  ],
+  "author": "KR1470R",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@dakqjs/mineflayer-captcha": "^1.2.4",
+    "minecraft-data": "^2.69.1",
+    "mineflayer": "^2.32.0",
+    "mineflayer-pathfinder": "^1.0.11",
+    "mineflayer-web-inventory": "^1.2.0",
+    "pngjs-image": "^0.11.7"
+  }
+}
