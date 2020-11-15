@@ -1,8 +1,10 @@
 const mineflayer = require('mineflayer')
 const readline = require("readline")
 const {pathfinder, Movements, goals} = require("mineflayer-pathfinder")
+const blockFinderPlugin = require('mineflayer-blockfinder')(mineflayer);
 const GoalBlock = goals.GoalBlock
 const inventoryViewer = require("mineflayer-web-inventory")
+const { Vec3 } = require('vec3')
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -12,16 +14,34 @@ const rl = readline.createInterface({
 const bot = mineflayer.createBot({
   host: 'mc.prostocraft.ru',
   // host: 'localhost',
-  // port: 40217,
-  username: 'kript2', // email and password
+  // port: 36601,
+  username: 'tom34', // pass 5555
 
   version: '1.12.2'
-  // false corresponds to auto version detection (that's the default), put for example "1.8.8" if you need a specific version
 })
 
 let logined = false
+let logginedSB = false
+let listOfAccessibleOres = [
+    1, // Stone
+    4, // Coubblestone
+    3, // Dirt block
+    14, // Gold Ore
+    15, // Iron Ore
+    16, // Coal Ore
+    21, // Lapis Lazulli Ore
+    56, // Diamond Ore
+    73, // Redstone Ore
+    74, // Glowing Redstone Ore
+    129, // Emerald Ore
+    153, // Nether Quartz Ore
+]
+let statePossitionSB
+let amountBlocksMustWillBeMined = 5
 
 bot.loadPlugin(pathfinder)
+bot.loadPlugin(require('mineflayer-collectblock').plugin)
+bot.loadPlugin(blockFinderPlugin);
 
 bot._client.once('map', (map) => {
   const size = Math.sqrt(map.data.length)
@@ -87,41 +107,76 @@ bot.on('spawn', () => {
   let x = 11.666
   let y = 53.50000
   let z = 45.939
-  bot.setQuickBarSlot(2)
-  const goal = new GoalBlock(x,y,z)
-  bot.pathfinder.setGoal(goal)
+  // const goal = new GoalBlock(x,y,z)
+  // bot.pathfinder.setGoal(goal)
+  if (logginedSB) {
+    console.log("Бот зайшов в СБ")
+    bot.setQuickBarSlot(0)
+    bot.look(0, 90)
+    statePossitionSB = bot.entity.position
+    let block = bot.blockInSight()
+    // console.log(block.position)
+    // console.log(">",bot.blockAt(new Vec3(block.position.x, block.position.y+1, block.position.z)))
+    function miner () {
+      for (let i = 0; i <= amountBlocksMustWillBeMined - 1; i++) {
+        goalBlock = new Vec3(block.position.x, block.position.y + i, block.position.z)
+
+        function mine () {
+          if (bot.blockAt(goalBlock)) {
+            console.log("Block finded")
+            if (listOfAccessibleOres.includes(bot.blockAt(goalBlock).type)) {
+              console.log("it is true type")
+              bot.collectBlock.collect(bot.blockAt(goalBlock), err => {
+                console.log("mine")
+                if (err) {
+                  console.log(err)
+                } else {
+                  bot.look(0, 90)
+                  bot.entity.position = statePossitionSB
+                  mine()
+                  if (i == 5) {
+                    miner()
+                  }
+                }
+              })
+            }
+          }
+        }
+        mine()
+      }
+    }
+    miner()
+
+    return
+  }
+  bot.setQuickBarSlot(0)
   bot.activateItem()
-  // bot.upda
-  // bot.clickWindow(1,1,mineflayer.Chest.window)
-  // bot.clickWindow(36,1,mineflayer.Chest.window, err => {
-  //   console.log(err)
-  // })
 })
 
-let c = 0
 bot.on("windowOpen", window => {
+  console.log("################################################")
+
   for (let i of Object.keys(mineflayer.ScoreBoard.positions["1"].itemsMap)) {
-    if (i.includes("Хаб")) console.log("Hub num: ",i.match(/(\d)/i)[0])
+    if (i.includes("Хаб")) console.log("Номер хаба: ",i.match(/(\d)/i)[0])
   }
-  console.log()
-  // console.log(bot.inventory)
-  // bot.closeWindow(window)
-  // for (let i of window.slots) {
-  //   if (!i) {
-  //     c++;
-  //     // console.log(i.nbt.value.display.value.Name.value)
-  //     // console.log("chest", mineflayer.Chest.window)
-  //     //console.log(i.nbt.value)
-      
-  //     // console.log(bot.inventory.slots)
-  //     // console.log(bot.inventory.clickWindow);
-      
-  //   }
-  // }
-  // console.log(c)
-  // bot.equip()
+  //16
+  let nameWindow = JSON.parse(window.title).extra[0].text; nameWindow = nameWindow.substring(0, nameWindow.length-2)
+  console.log(`Iм'я вiкна: ${nameWindow}`)
+  switch (nameWindow) {
+    case "Выбор сервера": bot.clickWindow(21,0,0); break
+    case "Выбор иг" : bot.clickWindow(10, 0, 0); logginedSB = true; break
+  }
+
+  for (let i of window.slots) {
+    if (i) {
+      // console.log(JSON.parse(i.nbt.value.display.value.Name.value).extra[0].text) // 1.16.1
+      console.log(i.nbt.value.display.value.Name.value)
+    }
+  }
+  console.log("################################################\n")
+
 })
 
 bot.on("windowClose", window => {
-  console.log(window.slots)
+  console.log('Window closed')
 })
