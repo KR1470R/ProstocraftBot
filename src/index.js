@@ -114,38 +114,83 @@ bot.on('spawn', () => {
     bot.setQuickBarSlot(0)
     bot.look(0, 90)
     statePossitionSB = bot.entity.position
-    let block = bot.blockInSight()
-    // console.log(block.position)
-    // console.log(">",bot.blockAt(new Vec3(block.position.x, block.position.y+1, block.position.z)))
-    function miner () {
-      for (let i = 0; i <= amountBlocksMustWillBeMined - 1; i++) {
-        goalBlock = new Vec3(block.position.x, block.position.y + i, block.position.z)
 
-        function mine () {
-          if (bot.blockAt(goalBlock)) {
-            console.log("Block finded")
-            if (listOfAccessibleOres.includes(bot.blockAt(goalBlock).type)) {
-              console.log("it is true type")
-              bot.collectBlock.collect(bot.blockAt(goalBlock), err => {
-                console.log("mine")
-                if (err) {
-                  console.log(err)
-                } else {
-                  bot.look(0, 90)
-                  bot.entity.position = statePossitionSB
-                  mine()
-                  if (i == 5) {
-                    miner()
-                  }
+    if (bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+2, bot.entity.position.z)).type != 0) {
+      console.log("Defined 1 block")
+      bot.dig(bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+2, bot.entity.position.z)), err => { // 1 block diging
+        if (err) throw err;
+        if (bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+3, bot.entity.position.z)).type != 0) {
+          console.log("Defined 2 block")
+          bot.dig(bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+3, bot.entity.position.z)), err1 => { // 2 block diging
+            if (err1) throw err1;
+            if (bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+4, bot.entity.position.z)).type != 0) {
+              bot.dig(bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y + 4, bot.entity.position.z)), err2 => { // 3 block diging
+                if (err2) throw err2;
+                if (bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+5, bot.entity.position.z)).type != 0) {
+                  bot.dig(bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y + 5, bot.entity.position.z)), err3 => { // 4 block diging
+                    if (err3) throw err3;
+                    if (bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+6, bot.entity.position.z)).type != 0) {
+                      bot.dig(bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y + 6, bot.entity.position.z)), err4 => { // 5 block diging
+                        if (err4) throw err4;
+                      })
+                    }
+                  })
                 }
               })
             }
-          }
+          })
         }
-        mine()
-      }
+      })
     }
-    miner()
+
+    // if (bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+1, bot.entity.position.z)) == undefined) {
+    //   if (bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+1, bot.entity.position.z)) == undefined) {
+    //
+    //   }
+    //   bot.dig(bot.blockAt(new Vec3(bot.entity.position.x, bot.entity.position.y+1, bot.entity.position.z)))
+    // } else {
+    //   bot.dig(block)
+    // }
+
+
+    // function miner () {
+    //   for (let i = 0; i <= amountBlocksMustWillBeMined - 1; i++) {
+    //     goalBlock = new Vec3(block.position.x, block.position.y + i, block.position.z)
+    //
+    //     function mine () {
+    //       if (bot.blockAt(goalBlock)) {
+    //         console.log("Block finded")
+    //         console.log("goal block: ", goalBlock)
+    //         console.log(block.type)
+    //         if (listOfAccessibleOres.includes(bot.blockAt(goalBlock).type)) {
+    //           console.log("it is true type")
+    //           bot.dig(bot.blockAt(goalBlock), (err) => {
+    //             if (err) {
+    //               console.log(err)
+    //             }
+    //
+    //             mine()
+    //           })
+    //           // bot.collectBlock.collect(bot.blockAt(goalBlock), err => {
+    //           //   console.log("mine")
+    //           //   if (err) {
+    //           //     console.log(err)
+    //           //   } else {
+    //           //     bot.look(0, 90)
+    //           //     bot.entity.position = statePossitionSB
+    //           //     mine()
+    //           //     if (i == 5) {
+    //           //       miner()
+    //           //     }
+    //           //   }
+    //           // })
+    //         }
+    //       }
+    //     }
+    //     mine()
+    //   }
+    // }
+    // miner()
 
     return
   }
@@ -163,6 +208,7 @@ bot.on("windowOpen", window => {
   let nameWindow = JSON.parse(window.title).extra[0].text; nameWindow = nameWindow.substring(0, nameWindow.length-2)
   console.log(`Iм'я вiкна: ${nameWindow}`)
   switch (nameWindow) {
+    // 16 - 7; 21 - 10
     case "Выбор сервера": bot.clickWindow(21,0,0); break
     case "Выбор иг" : bot.clickWindow(10, 0, 0); logginedSB = true; break
   }
